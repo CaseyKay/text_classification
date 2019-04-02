@@ -4,7 +4,7 @@
 import tensorflow as tf
 
 class fastTextB:
-    def __init__(self, label_size, learning_rate, batch_size, decay_steps, decay_rate,num_sampled,sentence_len,vocab_size,embed_size,is_training,max_label_per_example=5):
+    def __init__(self, label_size, learning_rate, batch_size, decay_steps, decay_rate, num_sampled, sentence_len, vocab_size,embed_size,is_training,max_label_per_example=5):
         """init all hyperparameter here"""
         # 1.set hyper-paramter
         self.label_size = label_size #e.g.1999
@@ -24,10 +24,9 @@ class fastTextB:
         self.labels_l1999=tf.placeholder(tf.float32,[None,self.label_size]) # int64
         #3.set some variables
         self.global_step = tf.Variable(0, trainable=False, name="Global_Step")
-        self.epoch_step=tf.Variable(0, trainable=False,name="Epoch_Step")
+        self.epoch_step = tf.Variable(0, trainable=False,name="Epoch_Step")
         self.epoch_increment=tf.assign(self.epoch_step,tf.add(self.epoch_step,tf.constant(1)))
         self.decay_steps, self.decay_rate = decay_steps, decay_rate
-        self.epoch_step = tf.Variable(0, trainable=False, name="Epoch_Step")
 
         #4.init weights
         self.instantiate_weights()
@@ -45,14 +44,14 @@ class fastTextB:
     def instantiate_weights(self):
         """define all weights here"""
         # embedding matrix
-        self.Embedding = tf.get_variable("Embedding", [self.vocab_size, self.embed_size],initializer=self.initializer)
+        self.Embedding = tf.get_variable("Embedding", [self.vocab_size, self.embed_size], initializer=self.initializer)
         self.W = tf.get_variable("W", [self.embed_size, self.label_size],initializer=self.initializer)
         self.b = tf.get_variable("b", [self.label_size])
 
     def inference(self):
         """main computation graph here: 1.embedding-->2.average-->3.linear classifier"""
         # 1.get emebedding of words in the sentence
-        sentence_embeddings = tf.nn.embedding_lookup(self.Embedding,self.sentence)  # [None,self.sentence_len,self.embed_size]
+        sentence_embeddings = tf.nn.embedding_lookup(self.Embedding, self.sentence)  # [None,self.sentence_len,self.embed_size]
 
         # 2.average vectors, to get representation of the sentence
         self.sentence_embeddings = tf.reduce_mean(sentence_embeddings, axis=1)  # [None,self.embed_size]
@@ -94,6 +93,6 @@ class fastTextB:
 
     def train(self):
         """based on the loss, use SGD to update parameter"""
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps,self.decay_rate, staircase=True)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, self.decay_steps, self.decay_rate, staircase=True)
         train_op = tf.contrib.layers.optimize_loss(self.loss_val, global_step=self.global_step,learning_rate=learning_rate, optimizer="Adam")
         return train_op

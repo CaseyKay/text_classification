@@ -28,18 +28,18 @@ tf.app.flags.DEFINE_float("learning_rate",0.0003,"learning rate")
 tf.app.flags.DEFINE_integer("batch_size", 64, "Batch size for training/evaluating.") #批处理的大小 32-->128
 tf.app.flags.DEFINE_integer("decay_steps", 1000, "how many steps before decay learning rate.") #6000批处理的大小 32-->128
 tf.app.flags.DEFINE_float("decay_rate", 1.0, "Rate of decay for learning rate.") #0.65一次衰减多少
-tf.app.flags.DEFINE_string("ckpt_dir","text_cnn_title_desc_checkpoint/","checkpoint location for the model")
-tf.app.flags.DEFINE_integer("sentence_len",200,"max sentence length")
-tf.app.flags.DEFINE_integer("embed_size",128,"embedding size")
+tf.app.flags.DEFINE_string("ckpt_dir", "text_cnn_title_desc_checkpoint/", "checkpoint location for the model")
+tf.app.flags.DEFINE_integer("sentence_len", 200, "max sentence length")
+tf.app.flags.DEFINE_integer("embed_size", 128, "embedding size")
 tf.app.flags.DEFINE_boolean("is_training_flag",True,"is training.true:tranining,false:testing/inference")
-tf.app.flags.DEFINE_integer("num_epochs",10,"number of epochs to run.")
+tf.app.flags.DEFINE_integer("num_epochs", 10, "number of epochs to run.")
 tf.app.flags.DEFINE_integer("validate_every", 1, "Validate every validate_every epochs.") #每10轮做一次验证
-tf.app.flags.DEFINE_boolean("use_embedding",False,"whether to use embedding or not.")
+tf.app.flags.DEFINE_boolean("use_embedding", False, "whether to use embedding or not.")
 tf.app.flags.DEFINE_integer("num_filters", 128, "number of filters") #256--->512
-tf.app.flags.DEFINE_string("word2vec_model_path","word2vec-title-desc.bin","word2vec's vocabulary and vectors")
-tf.app.flags.DEFINE_string("name_scope","cnn","name scope value.")
-tf.app.flags.DEFINE_boolean("multi_label_flag",True,"use multi label or single label.")
-filter_sizes=[6,7,8]
+tf.app.flags.DEFINE_string("word2vec_model_path", "word2vec-title-desc.bin", "word2vec's vocabulary and vectors")
+tf.app.flags.DEFINE_string("name_scope", "cnn", "name scope value.")
+tf.app.flags.DEFINE_boolean("multi_label_flag", True, "use multi label or single label.")
+filter_sizes = [6, 7, 8]
 
 #1.load data(X:list of lint,y:int). 2.create session. 3.feed data. 4.training (5.validation) ,(6.prediction)
 def main(_):

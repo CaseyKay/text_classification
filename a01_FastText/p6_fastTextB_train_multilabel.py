@@ -18,15 +18,15 @@ import h5py
 #configuration
 FLAGS=tf.app.flags.FLAGS
 #tf.app.flags.DEFINE_integer("label_size",1999,"number of label")
-tf.app.flags.DEFINE_string("cache_file_h5py","../data/ieee_zhihu_cup/data.h5","path of training/validation/test data.") #../data/sample_multiple_label.txt
-tf.app.flags.DEFINE_string("cache_file_pickle","../data/ieee_zhihu_cup/vocab_label.pik","path of vocabulary and label files") #../data/sample_multiple_label.txt
+tf.app.flags.DEFINE_string("cache_file_h5py", "../data/ieee_zhihu_cup/data.h5", "path of training/validation/test data.") #../data/sample_multiple_label.txt
+tf.app.flags.DEFINE_string("cache_file_pickle", "../data/ieee_zhihu_cup/vocab_label.pik", "path of vocabulary and label files") #../data/sample_multiple_label.txt
 
-tf.app.flags.DEFINE_float("learning_rate",0.001,"learning rate")
+tf.app.flags.DEFINE_float("learning_rate", 0.001, "learning rate")
 tf.app.flags.DEFINE_integer("batch_size", 128, "Batch size for training/evaluating.") #512批处理的大小 32-->128
 tf.app.flags.DEFINE_integer("decay_steps", 20000, "how many steps before decay learning rate.") #批处理的大小 32-->128
 tf.app.flags.DEFINE_float("decay_rate", 0.9, "Rate of decay for learning rate.") #0.5一次衰减多少
-tf.app.flags.DEFINE_integer("num_sampled",10,"number of noise sampling") #100
-tf.app.flags.DEFINE_string("ckpt_dir","fast_text_checkpoint_multi/","checkpoint location for the model")
+tf.app.flags.DEFINE_integer("num_sampled", 10, "number of noise sampling") #100
+tf.app.flags.DEFINE_string("ckpt_dir", "fast_text_checkpoint_multi/","checkpoint location for the model")
 tf.app.flags.DEFINE_integer("sentence_len",200,"max sentence length")
 tf.app.flags.DEFINE_integer("embed_size",128,"embedding size") #100
 tf.app.flags.DEFINE_boolean("is_training",True,"is traning.true:tranining,false:testing/inference")
@@ -68,7 +68,7 @@ def main(_):
         saver=tf.train.Saver()
         if os.path.exists(FLAGS.ckpt_dir+"checkpoint"):
             print("Restoring Variables from Checkpoint")
-            saver.restore(sess,tf.train.latest_checkpoint(FLAGS.ckpt_dir))
+            saver.restore(sess, tf.train.latest_checkpoint(FLAGS.ckpt_dir))
         else:
             print('Initializing Variables')
             sess.run(tf.global_variables_initializer())
@@ -89,13 +89,13 @@ def main(_):
                 if epoch==0 and counter==0:
                     print("trainX[start:end]:",trainX[start:end]) #2d-array. each element slength is a 100.
                     print("train_Y_batch:",trainY[start:end]) #a list,each element is a list.element:may be has 1,2,3,4,5 labels.
-                    #print("trainY1999[start:end]:",trainY1999[start:end])
-                loss,counter=loss+curr_loss,counter+1 #acc+curr_acc,
+                    # print("trainY1999[start:end]:",trainY1999[start:end])
+                loss, counter = loss+curr_loss,counter+1 #acc+curr_acc,
                 if counter %50==0:
                     print("Epoch %d\tBatch %d\tTrain Loss:%.3f\tL2 Loss:%.3f" %(epoch,counter,loss/float(counter),current_l2_loss)) #\tTrain Accuracy:%.3f--->,acc/float(counter)
 
                 if start%(1000*FLAGS.batch_size)==0:
-                    eval_loss, eval_accuracy = do_eval(sess, fast_text, vaildX, vaildY, batch_size,index2label)  # testY1999,eval_acc
+                    eval_loss, eval_accuracy = do_eval(sess, fast_text, vaildX, vaildY, batch_size, index2label)  # testY1999,eval_acc
                     print("Epoch %d Validation Loss:%.3f\tValidation Accuracy: %.3f" % (epoch, eval_loss, eval_accuracy))  # ,\tValidation Accuracy: %.3f--->eval_acc
                     # save model to checkpoint
                     if start%(6000*FLAGS.batch_size)==0:
@@ -107,10 +107,10 @@ def main(_):
             sess.run(fast_text.epoch_increment)
 
             # 4.validation
-            print("epoch:",epoch,"validate_every:",FLAGS.validate_every,"validate or not:",(epoch % FLAGS.validate_every==0))
+            print("epoch:", epoch, "validate_every:", FLAGS.validate_every, "validate or not:", (epoch % FLAGS.validate_every==0))
             if epoch % FLAGS.validate_every==0:
-                eval_loss,eval_accuracy=do_eval(sess,fast_text,vaildX,vaildY,batch_size,index2label) #testY1999,eval_acc
-                print("Epoch %d Validation Loss:%.3f\tValidation Accuracy: %.3f" % (epoch,eval_loss,eval_accuracy)) #,\tValidation Accuracy: %.3f--->eval_acc
+                eval_loss,eval_accuracy=do_eval(sess, fast_text,vaildX,vaildY,batch_size,index2label)   # testY1999,eval_acc
+                print("Epoch %d Validation Loss:%.3f\tValidation Accuracy: %.3f" % (epoch,eval_loss,eval_accuracy))   # ,\tValidation Accuracy: %.3f--->eval_acc
                 #save model to checkpoint
                 print("Going to save checkpoint.")
                 save_path=FLAGS.ckpt_dir+"model.ckpt"
@@ -121,25 +121,25 @@ def main(_):
     pass
 
 # 在验证集上做验证，报告损失、精确度
-def do_eval(sess,fast_text,evalX,evalY,batch_size,vocabulary_index2word_label): #evalY1999
-    evalX=evalX[0:3000]
-    evalY=evalY[0:3000]
-    number_examples,labels=evalX.shape
-    print("number_examples for validation:",number_examples)
-    eval_loss,eval_acc,eval_counter=0.0,0.0,0
-    batch_size=1
-    for start,end in zip(range(0,number_examples,batch_size),range(batch_size,number_examples,batch_size)):
-        evalY_batch=process_labels(evalY[start:end])
-        curr_eval_loss,logit = sess.run([fast_text.loss_val,fast_text.logits], #curr_eval_acc-->fast_text.accuracy
-                                          feed_dict={fast_text.sentence: evalX[start:end],fast_text.labels_l1999: evalY[start:end]}) #,fast_text.labels_l1999:evalY1999[start:end]
-        #print("do_eval.logits_",logits_.shape)
+def do_eval(sess,fast_text,evalX,evalY,batch_size,vocabulary_index2word_label): # evalY1999
+    evalX = evalX[0:3000]
+    evalY = evalY[0:3000]
+    number_examples, labels = evalX.shape
+    print("number_examples for validation:", number_examples)
+    eval_loss, eval_acc, eval_counter = 0.0, 0.0, 0
+    batch_size = 1
+    for start, end in zip(range(0, number_examples, batch_size), range(batch_size, number_examples,batch_size)):
+        evalY_batch = process_labels(evalY[start:end])
+        curr_eval_loss, logit = sess.run([fast_text.loss_val, fast_text.logits],  # curr_eval_acc-->fast_text.accuracy
+                                          feed_dict={fast_text.sentence: evalX[start:end], fast_text.labels_l1999: evalY[start:end]}) #,fast_text.labels_l1999:evalY1999[start:end]
+        # print("do_eval.logits_", logits_.shape)
         label_list_top5 = get_label_using_logits(logit[0], vocabulary_index2word_label)
-        curr_eval_acc=calculate_accuracy(list(label_list_top5),evalY_batch[0] ,eval_counter) # evalY[start:end][0]
-        eval_loss,eval_counter,eval_acc=eval_loss+curr_eval_loss,eval_counter+1,eval_acc+curr_eval_acc
+        curr_eval_acc = calculate_accuracy(list(label_list_top5), evalY_batch[0], eval_counter)  # evalY[start:end][0]
+        eval_loss, eval_counter, eval_acc = eval_loss+curr_eval_loss, eval_counter+1, eval_acc+curr_eval_acc
 
-    return eval_loss/float(eval_counter),eval_acc/float(eval_counter)
+    return eval_loss/float(eval_counter), eval_acc/float(eval_counter)
 
-def assign_pretrained_word_embedding(sess,vocabulary_index2word,vocab_size,fast_text):
+def assign_pretrained_word_embedding(sess, vocabulary_index2word, vocab_size, fast_text):
     print("using pre-trained word emebedding.started...")
     # word2vecc=word2vec.load('word_embedding.txt') #load vocab-vector fiel.word2vecc['w91874']
     word2vec_model = word2vec.load('zhihu-word2vec-multilabel.bin-100', kind='bin')
@@ -149,7 +149,7 @@ def assign_pretrained_word_embedding(sess,vocabulary_index2word,vocab_size,fast_
     word_embedding_2dlist = [[]] * vocab_size  # create an empty word_embedding list.
     word_embedding_2dlist[0] = np.zeros(FLAGS.embed_size)  # assign empty for first word:'PAD'
     bound = np.sqrt(6.0) / np.sqrt(vocab_size)  # bound for random variables.
-    count_exist = 0;
+    count_exist = 0
     count_not_exist = 0
     for i in range(1, vocab_size):  # loop each word
         word = vocabulary_index2word[i]  # get a word
@@ -159,23 +159,23 @@ def assign_pretrained_word_embedding(sess,vocabulary_index2word,vocab_size,fast_
         except Exception:
             embedding = None
         if embedding is not None:  # the 'word' exist a embedding
-            word_embedding_2dlist[i] = embedding;
+            word_embedding_2dlist[i] = embedding
             count_exist = count_exist + 1  # assign array to this word.
         else:  # no embedding for this word
-            word_embedding_2dlist[i] = np.random.uniform(-bound, bound, FLAGS.embed_size);
+            word_embedding_2dlist[i] = np.random.uniform(-bound, bound, FLAGS.embed_size)
             count_not_exist = count_not_exist + 1  # init a random value for the word.
     word_embedding_final = np.array(word_embedding_2dlist)  # covert to 2d array.
     word_embedding = tf.constant(word_embedding_final, dtype=tf.float32)  # convert to tensor
     t_assign_embedding = tf.assign(fast_text.Embedding,
                                    word_embedding)  # assign this value to our embedding variables of our model.
-    sess.run(t_assign_embedding);
+    sess.run(t_assign_embedding)
     print("word. exists embedding:", count_exist, " ;word not exist embedding:", count_not_exist)
     print("using pre-trained word emebedding.ended...")
 
 #从logits中取出前五 get label using logits
-def get_label_using_logits(logits,vocabulary_index2word_label,top_number=5):
-    index_list=np.argsort(logits)[-top_number:]
-    index_list=index_list[::-1]
+def get_label_using_logits(logits, vocabulary_index2word_label, top_number=5):
+    index_list = np.argsort(logits)[-top_number:]
+    index_list = index_list[::-1]
     #label_list=[]
     #for index in index_list:
     #    label=vocabulary_index2word_label[index]
@@ -190,11 +190,11 @@ def calculate_accuracy(labels_predicted, labels,eval_counter):
     label_dict = {x: x for x in labels}
     for label_predict in labels_predicted:
         flag = label_dict.get(label_predict, None)
-    if flag is not None:
-        count = count + 1
+        if flag is not None:
+            count = count + 1
     return count / len(labels)
 
-def load_data(cache_file_h5py,cache_file_pickle):
+def load_data(cache_file_h5py, cache_file_pickle):
     """
     load data from h5py and pickle cache files, which is generate by take step by step of pre-processing.ipynb
     :param cache_file_h5py:
@@ -208,22 +208,22 @@ def load_data(cache_file_h5py,cache_file_pickle):
                            "cache_file_h5py and FLAGS.cache_file_pickle suggested location.")
     print("INFO. cache file exists. going to load cache file")
     f_data = h5py.File(cache_file_h5py, 'r')
-    print("f_data.keys:",list(f_data.keys()))
-    train_X=f_data['train_X'] # np.array(
-    print("train_X.shape:",train_X.shape)
-    train_Y=f_data['train_Y'] # np.array(
-    print("train_Y.shape:",train_Y.shape,";")
-    vaild_X=f_data['vaild_X'] # np.array(
-    valid_Y=f_data['valid_Y'] # np.array(
-    test_X=f_data['test_X'] # np.array(
-    test_Y=f_data['test_Y'] # np.array(
+    print("f_data.keys:", list(f_data.keys()))
+    train_X=f_data['train_X']  # np.array(
+    print("train_X.shape:", train_X.shape)
+    train_Y=f_data['train_Y']  # np.array(
+    print("train_Y.shape:", train_Y.shape, ";")
+    vaild_X=f_data['vaild_X']  # np.array(
+    valid_Y=f_data['valid_Y']  # np.array(
+    test_X=f_data['test_X']  # np.array(
+    test_Y=f_data['test_Y']  # np.array(
 
 
-    word2index, label2index=None,None
+    word2index, label2index = None, None
     with open(cache_file_pickle, 'rb') as data_f_pickle:
-        word2index, label2index=pickle.load(data_f_pickle)
+        word2index, label2index = pickle.load(data_f_pickle)
     print("INFO. cache file load successful...")
-    return word2index, label2index,train_X,train_Y,vaild_X,valid_Y,test_X,test_Y
+    return word2index, label2index, train_X, train_Y, vaild_X, valid_Y, test_X, test_Y
 
 def process_labels(trainY_batch,require_size=5,number=None):
     """
@@ -257,17 +257,18 @@ def proces_label_to_algin(ys_list,require_size=5):
     :return: a list
     """
     ys_list_result=[0 for x in range(require_size)]
-    if len(ys_list)>=require_size: #超长
-        ys_list_result=ys_list[0:require_size]
-    else:#太短
-       if len(ys_list)==1:
-           ys_list_result =[ys_list[0] for x in range(require_size)]
-       elif len(ys_list)==2:
-           ys_list_result = [ys_list[0],ys_list[0],ys_list[0],ys_list[1],ys_list[1]]
+    if len(ys_list) >= require_size:  # 超长
+        ys_list_result = ys_list[0:require_size]
+    else:  # 太短
+       if len(ys_list) == 1:
+           ys_list_result = [ys_list[0] for x in range(require_size)]
+       elif len(ys_list) == 2:
+           ys_list_result = [ys_list[0], ys_list[0], ys_list[0], ys_list[1], ys_list[1]]
        elif len(ys_list) == 3:
            ys_list_result = [ys_list[0], ys_list[0], ys_list[1], ys_list[1], ys_list[2]]
        elif len(ys_list) == 4:
            ys_list_result = [ys_list[0], ys_list[0], ys_list[1], ys_list[2], ys_list[3]]
     return ys_list_result
+
 if __name__ == "__main__":
     tf.app.run()
